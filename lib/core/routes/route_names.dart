@@ -1,0 +1,33 @@
+class RouteNames {
+  static const String splash = '/';
+  static const String onboarding = '/onboarding';
+  static const String home = '/home';
+  static const String explore = '/explore';
+  static const String cart = '/cart';
+  static const String wishlist = '/wishlist';
+  static const String profile = '/profile';
+  static const String login = '/login';
+  static const String register = '/register';
+  static const String forgotPassword = '/forgot-password';
+  static const String search = '/search';
+  static const String categories = '/categories';
+  static const String categoryProducts = '/categories/:id';
+  static const String productDetails = '/products/:id';
+  static const String reviews = '/products/:id/reviews';
+  static const String writeReview = '/products/:id/review';
+  static const String checkout = '/checkout';
+  static const String orderConfirmation = '/order-confirmation';
+  static const String orders = '/orders';
+  static const String orderDetails = '/orders/:id';
+  static const String orderTracking = '/orders/:id/track';
+  static const String addresses = '/addresses';
+  static const String addressForm = '/addresses/form';
+  static const String notifications = '/notifications';
+  static const String settings = '/settings';
+  static const String help = '/help';
+  static const String about = '/about';
+  static const String terms = '/terms';
+  static const String privacy = '/privacy';
+  static const String changePassword = '/change-password';
+  static const String paymentMethods = '/payment-methods';
+}

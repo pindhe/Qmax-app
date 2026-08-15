@@ -1,0 +1,155 @@
+-- QMAX Tools MySQL schema (Laravel-ready)
+-- Connect the Flutter app to these tables via REST later.
+
+CREATE TABLE users (
+  id BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+  name VARCHAR(120) NOT NULL,
+  email VARCHAR(190) UNIQUE,
+  phone VARCHAR(30) UNIQUE NOT NULL,
+  password VARCHAR(255) NOT NULL,
+  role ENUM('customer','admin') DEFAULT 'customer',
+  avatar VARCHAR(255),
+  created_at TIMESTAMP NULL,
+  updated_at TIMESTAMP NULL
+);
+
+CREATE TABLE categories (
+  id BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+  name VARCHAR(120) NOT NULL,
+  slug VARCHAR(160) UNIQUE NOT NULL,
+  image VARCHAR(255),
+  description TEXT,
+  status TINYINT DEFAULT 1,
+  created_at TIMESTAMP NULL,
+  updated_at TIMESTAMP NULL
+);
+
+CREATE TABLE products (
+  id BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+  category_id BIGINT UNSIGNED NOT NULL,
+  name VARCHAR(190) NOT NULL,
+  slug VARCHAR(190) UNIQUE NOT NULL,
+  sku VARCHAR(80) UNIQUE NOT NULL,
+  description TEXT,
+  price DECIMAL(12,2) NOT NULL,
+  discount_price DECIMAL(12,2) NULL,
+  stock INT NOT NULL DEFAULT 0,
+  brand VARCHAR(120),
+  image VARCHAR(255),
+  status TINYINT DEFAULT 1,
+  created_at TIMESTAMP NULL,
+  updated_at TIMESTAMP NULL,
+  FOREIGN KEY (category_id) REFERENCES categories(id)
+);
+
+CREATE TABLE product_images (
+  id BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+  product_id BIGINT UNSIGNED NOT NULL,
+  image_url VARCHAR(255) NOT NULL,
+  created_at TIMESTAMP NULL,
+  FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
+);
+
+CREATE TABLE carts (
+  id BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+  user_id BIGINT UNSIGNED NOT NULL,
+  created_at TIMESTAMP NULL,
+  updated_at TIMESTAMP NULL,
+  FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
+CREATE TABLE cart_items (
+  id BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+  cart_id BIGINT UNSIGNED NOT NULL,
+  product_id BIGINT UNSIGNED NOT NULL,
+  quantity INT NOT NULL,
+  price DECIMAL(12,2) NOT NULL,
+  FOREIGN KEY (cart_id) REFERENCES carts(id) ON DELETE CASCADE,
+  FOREIGN KEY (product_id) REFERENCES products(id)
+);
+
+CREATE TABLE wishlists (
+  id BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+  user_id BIGINT UNSIGNED NOT NULL,
+  product_id BIGINT UNSIGNED NOT NULL,
+  created_at TIMESTAMP NULL,
+  UNIQUE KEY unique_wish (user_id, product_id),
+  FOREIGN KEY (user_id) REFERENCES users(id),
+  FOREIGN KEY (product_id) REFERENCES products(id)
+);
+
+CREATE TABLE addresses (
+  id BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+  user_id BIGINT UNSIGNED NOT NULL,
+  name VARCHAR(120) NOT NULL,
+  phone VARCHAR(30) NOT NULL,
+  city VARCHAR(80) NOT NULL,
+  area VARCHAR(80) NOT NULL,
+  street VARCHAR(190) NOT NULL,
+  directions VARCHAR(255),
+  is_default TINYINT DEFAULT 0,
+  FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
+CREATE TABLE orders (
+  id BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+  user_id BIGINT UNSIGNED NOT NULL,
+  order_number VARCHAR(40) UNIQUE NOT NULL,
+  address_id BIGINT UNSIGNED NOT NULL,
+  subtotal DECIMAL(12,2) NOT NULL,
+  delivery_fee DECIMAL(12,2) NOT NULL DEFAULT 0,
+  discount DECIMAL(12,2) NOT NULL DEFAULT 0,
+  total DECIMAL(12,2) NOT NULL,
+  payment_method VARCHAR(40) NOT NULL,
+  payment_status VARCHAR(40) DEFAULT 'pending',
+  order_status VARCHAR(40) DEFAULT 'pending',
+  created_at TIMESTAMP NULL,
+  updated_at TIMESTAMP NULL,
+  FOREIGN KEY (user_id) REFERENCES users(id),
+  FOREIGN KEY (address_id) REFERENCES addresses(id)
+);
+
+CREATE TABLE order_items (
+  id BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+  order_id BIGINT UNSIGNED NOT NULL,
+  product_id BIGINT UNSIGNED NOT NULL,
+  product_name VARCHAR(190) NOT NULL,
+  quantity INT NOT NULL,
+  price DECIMAL(12,2) NOT NULL,
+  subtotal DECIMAL(12,2) NOT NULL,
+  FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE
+);
+
+CREATE TABLE reviews (
+  id BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+  user_id BIGINT UNSIGNED NOT NULL,
+  product_id BIGINT UNSIGNED NOT NULL,
+  rating TINYINT NOT NULL,
+  comment TEXT,
+  image VARCHAR(255),
+  status TINYINT DEFAULT 1,
+  created_at TIMESTAMP NULL,
+  FOREIGN KEY (user_id) REFERENCES users(id),
+  FOREIGN KEY (product_id) REFERENCES products(id)
+);
+
+CREATE TABLE coupons (
+  id BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+  code VARCHAR(40) UNIQUE NOT NULL,
+  type ENUM('percent','fixed') NOT NULL,
+  value DECIMAL(12,2) NOT NULL,
+  minimum_order DECIMAL(12,2) DEFAULT 0,
+  expires_at DATETIME NULL,
+  status VARCHAR(20) DEFAULT 'active'
+);
+
+CREATE TABLE notifications (
+  id BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+  user_id BIGINT UNSIGNED NOT NULL,
+  title VARCHAR(190) NOT NULL,
+  message TEXT NOT NULL,
+  type VARCHAR(40),
+  is_read TINYINT DEFAULT 0,
+  created_at TIMESTAMP NULL,
+  FOREIGN KEY (user_id) REFERENCES users(id)
+);
