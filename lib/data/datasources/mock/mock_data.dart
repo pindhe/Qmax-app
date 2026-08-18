@@ -24,7 +24,7 @@ class MockData {
       id: 1,
       title: 'BUILD BETTER WITH QMAX',
       subtitle: 'Premium tools and construction materials.',
-      imageUrl: 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=1200',
+      imageUrl: 'https://images.unsplash.com/photo-1541888946425-d81bb19240f5?w=1400',
     ),
     PromoBanner(
       id: 2,

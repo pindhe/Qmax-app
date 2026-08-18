@@ -12,6 +12,7 @@ import '../../../domain/entities/entities.dart';
 import '../../providers/state_providers.dart';
 import '../../widgets/brand/qmax_logo.dart';
 import '../../widgets/common/qmax_common.dart';
+import '../../widgets/common/qmax_theme_toggle.dart';
 import '../../widgets/navigation/main_shell.dart';
 
 class ProfileScreen extends ConsumerWidget {
@@ -23,7 +24,10 @@ class ProfileScreen extends ConsumerWidget {
     final l10n = context.l10n;
     final user = auth.user;
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.profile)),
+      appBar: AppBar(
+        title: Text(l10n.profile),
+        actions: const [QmaxDarkModeButton()],
+      ),
       body: ListView(
         padding: EdgeInsets.all(context.pagePadding),
         children: [
@@ -41,11 +45,12 @@ class ProfileScreen extends ConsumerWidget {
           if (!auth.isAuthenticated)
             QmaxButton(label: l10n.login, onPressed: () => context.push('/login')),
           const SizedBox(height: 16),
+          const QmaxDarkModeSwitch(),
           _tile(Icons.receipt_long, l10n.myOrders, () {
             if (!RequireAuth.ensure(context, ref)) return;
             context.push('/orders');
           }),
-          _tile(Icons.favorite_outline, l10n.wishlist, () => context.go('/wishlist')),
+          _tile(Icons.favorite_outline, l10n.wishlist, () => context.push('/wishlist')),
           _tile(Icons.location_on_outlined, l10n.addresses, () {
             if (!RequireAuth.ensure(context, ref)) return;
             context.push('/addresses');
@@ -108,28 +113,7 @@ class SettingsScreen extends ConsumerWidget {
               if (locale != null) ref.read(settingsProvider.notifier).setLocale(locale);
             },
           ),
-          ListTile(
-            title: Text(l10n.darkMode),
-            subtitle: Text(switch (settings.themeMode) {
-              ThemeMode.light => l10n.themeLight,
-              ThemeMode.dark => l10n.themeDark,
-              _ => l10n.themeSystem,
-            }),
-            onTap: () async {
-              final mode = await showModalBottomSheet<ThemeMode>(
-                context: context,
-                builder: (_) => Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    ListTile(title: Text(l10n.themeSystem), onTap: () => Navigator.pop(context, ThemeMode.system)),
-                    ListTile(title: Text(l10n.themeLight), onTap: () => Navigator.pop(context, ThemeMode.light)),
-                    ListTile(title: Text(l10n.themeDark), onTap: () => Navigator.pop(context, ThemeMode.dark)),
-                  ],
-                ),
-              );
-              if (mode != null) ref.read(settingsProvider.notifier).setTheme(mode);
-            },
-          ),
+          const QmaxDarkModeSwitch(),
           SwitchListTile(
             title: Text(l10n.notifications),
             value: settings.notificationsEnabled,

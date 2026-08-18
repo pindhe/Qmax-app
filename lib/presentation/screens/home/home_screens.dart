@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 import '../../../core/extensions/context_extensions.dart';
+import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/utils/validators.dart';
 import '../../../domain/entities/entities.dart';
@@ -13,6 +14,7 @@ import '../../../services/connectivity_service.dart';
 import '../../providers/state_providers.dart';
 import '../../widgets/common/cart_actions.dart';
 import '../../widgets/common/qmax_common.dart';
+import '../../widgets/common/qmax_theme_toggle.dart';
 import '../../widgets/product/product_widgets.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
@@ -66,7 +68,34 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with CartActions {
                           children: [
                             if (!online)
                               _OfflineBanner(label: l10n.offlineCached),
-                            Text('QMAX TOOLS', style: context.texts.labelLarge?.copyWith(letterSpacing: 1.4, color: context.colors.primary)),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    'QMAX TOOLS',
+                                    style: context.texts.labelLarge?.copyWith(
+                                      letterSpacing: 1.4,
+                                      color: context.colors.primary,
+                                    ),
+                                  ),
+                                ),
+                                IconButton(
+                                  tooltip: l10n.explore,
+                                  onPressed: () => context.push('/explore'),
+                                  icon: const Icon(Icons.explore_outlined),
+                                ),
+                                IconButton(
+                                  tooltip: l10n.wishlist,
+                                  onPressed: () => context.push('/wishlist'),
+                                  icon: Badge(
+                                    isLabelVisible: ref.watch(wishlistProvider).isNotEmpty,
+                                    smallSize: 8,
+                                    child: const Icon(Icons.favorite_border),
+                                  ),
+                                ),
+                                const QmaxDarkModeButton(),
+                              ],
+                            ),
                             Text(Formatters.greeting(TimeOfDay.now(), l10n), style: context.texts.headlineSmall),
                             Text(l10n.shopAtQmax, style: context.texts.bodyMedium),
                             const SizedBox(height: 8),
@@ -114,6 +143,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with CartActions {
                             separatorBuilder: (_, __) => const SizedBox(width: 10),
                             itemBuilder: (_, i) => QmaxCategoryCard(
                               category: items[i],
+                              width: 108,
                               onTap: () => context.push('/categories/${items[i].id}'),
                             ),
                           ),
@@ -141,7 +171,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with CartActions {
       SliverToBoxAdapter(
         child: Padding(
           padding: EdgeInsets.fromLTRB(context.pagePadding, 20, context.pagePadding, 12),
-          child: _SectionHeader(title: title, onViewAll: () => context.go('/explore')),
+          child: _SectionHeader(title: title, onViewAll: () => context.push('/explore')),
         ),
       ),
       SliverPadding(
@@ -203,53 +233,82 @@ class _BannerCarousel extends StatelessWidget {
     return Column(
       children: [
         SizedBox(
-          height: 170,
+          height: 220,
           child: PageView.builder(
             controller: controller,
             itemCount: items.length,
             itemBuilder: (_, i) {
               final banner = items[i];
-              return Padding(
-                padding: const EdgeInsets.only(right: 4),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(AppSpacing.radiusLg),
-                  child: Stack(
-                    fit: StackFit.expand,
-                    children: [
-                      CachedNetworkImage(imageUrl: banner.imageUrl, fit: BoxFit.cover),
-                      const DecoratedBox(
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: [Color(0xCC0D1B2A), Color(0x330D1B2A)],
-                            begin: Alignment.bottomLeft,
-                            end: Alignment.topRight,
-                          ),
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            Text(banner.title, style: Theme.of(context).textTheme.titleLarge?.copyWith(color: Colors.white)),
-                            Text(banner.subtitle, style: const TextStyle(color: Colors.white70)),
-                            const SizedBox(height: 8),
-                            FilledButton(
-                              onPressed: () {
-                                if (banner.categoryId != null) {
-                                  context.push('/categories/${banner.categoryId}');
-                                } else {
-                                  context.go('/explore');
-                                }
-                              },
-                              child: Text(context.l10n.shopNow),
-                            ),
+              return ClipRRect(
+                borderRadius: BorderRadius.circular(AppSpacing.radiusLg),
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    CachedNetworkImage(
+                      imageUrl: banner.imageUrl,
+                      fit: BoxFit.cover,
+                      placeholder: (_, __) => const ColoredBox(color: Color(0xFF0D1B2A)),
+                      errorWidget: (_, __, ___) => const ColoredBox(color: Color(0xFF0D1B2A)),
+                    ),
+                    const DecoratedBox(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [
+                            Color(0x660D1B2A),
+                            Color(0x990D1B2A),
+                            Color(0xCC0D1B2A),
                           ],
                         ),
                       ),
-                    ],
-                  ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            banner.title,
+                            textAlign: TextAlign.center,
+                            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w800,
+                                  letterSpacing: 0.6,
+                                  height: 1.15,
+                                ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            banner.subtitle,
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 13.5,
+                              height: 1.35,
+                            ),
+                          ),
+                          const SizedBox(height: 14),
+                          FilledButton(
+                            style: FilledButton.styleFrom(
+                              minimumSize: const Size(148, 44),
+                              padding: const EdgeInsets.symmetric(horizontal: 28),
+                              backgroundColor: AppColors.orange,
+                              foregroundColor: Colors.white,
+                            ),
+                            onPressed: () {
+                              if (banner.categoryId != null) {
+                                context.push('/categories/${banner.categoryId}');
+                              } else {
+                                context.push('/explore');
+                              }
+                            },
+                            child: Text(context.l10n.shopNow),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
               );
             },
@@ -261,8 +320,9 @@ class _BannerCarousel extends StatelessWidget {
           count: items.length,
           effect: ExpandingDotsEffect(
             activeDotColor: Theme.of(context).colorScheme.primary,
-            dotHeight: 7,
-            dotWidth: 7,
+            dotColor: Theme.of(context).colorScheme.outlineVariant,
+            dotHeight: 8,
+            dotWidth: 8,
           ),
         ),
       ],
@@ -273,7 +333,7 @@ class _BannerCarousel extends StatelessWidget {
 class _ShimmerBanner extends StatelessWidget {
   const _ShimmerBanner();
   @override
-  Widget build(BuildContext context) => const SizedBox(height: 170, child: ProductSkeleton());
+  Widget build(BuildContext context) => const SizedBox(height: 220, child: ProductSkeleton());
 }
 
 class _OfflineBanner extends StatelessWidget {
@@ -447,64 +507,4 @@ Future<void> openProductFilters(
       );
     },
   );
-}
-
-class CategoriesScreen extends ConsumerWidget {
-  const CategoriesScreen({super.key});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final categories = ref.watch(categoriesProvider).valueOrNull ?? [];
-    return Scaffold(
-      appBar: AppBar(title: Text(context.l10n.allCategories)),
-      body: GridView.builder(
-        padding: EdgeInsets.all(context.pagePadding),
-        itemCount: categories.length,
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2, childAspectRatio: 1.3, mainAxisSpacing: 12, crossAxisSpacing: 12),
-        itemBuilder: (_, i) => QmaxCategoryCard(
-          category: categories[i],
-          onTap: () => context.push('/categories/${categories[i].id}'),
-        ),
-      ),
-    );
-  }
-}
-
-class CategoryProductsScreen extends ConsumerStatefulWidget {
-  const CategoryProductsScreen({super.key, required this.categoryId});
-  final int categoryId;
-
-  @override
-  ConsumerState<CategoryProductsScreen> createState() => _CategoryProductsScreenState();
-}
-
-class _CategoryProductsScreenState extends ConsumerState<CategoryProductsScreen> with CartActions {
-  @override
-  void initState() {
-    super.initState();
-    Future.microtask(() {
-      ref.read(exploreProvider.notifier).load(
-            filter: ProductFilter(categoryId: widget.categoryId),
-            refresh: true,
-          );
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final cats = ref.watch(categoriesProvider).valueOrNull ?? [];
-    final cat = cats.where((c) => c.id == widget.categoryId).firstOrNull;
-    final state = ref.watch(exploreProvider);
-    return Scaffold(
-      appBar: AppBar(title: Text(cat?.name ?? context.l10n.categories)),
-      body: ProductGrid(
-        products: state.items,
-        padding: EdgeInsets.all(context.pagePadding),
-        isWishlisted: (id) => ref.watch(wishlistProvider).contains(id),
-        onTap: (p) => context.push('/products/${p.id}'),
-        onAdd: addProduct,
-        onWishlist: toggleWish,
-      ),
-    );
-  }
 }

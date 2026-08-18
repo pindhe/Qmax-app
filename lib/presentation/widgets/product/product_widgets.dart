@@ -127,9 +127,16 @@ class QmaxProductCard extends StatelessWidget {
 }
 
 class QmaxCategoryCard extends StatelessWidget {
-  const QmaxCategoryCard({super.key, required this.category, required this.onTap});
+  const QmaxCategoryCard({
+    super.key,
+    required this.category,
+    required this.onTap,
+    this.width,
+  });
+
   final Category category;
   final VoidCallback onTap;
+  final double? width;
 
   static IconData iconFor(String key) => switch (key) {
         'handyman' => Icons.handyman,
@@ -151,8 +158,8 @@ class QmaxCategoryCard extends StatelessWidget {
       onTap: onTap,
       borderRadius: BorderRadius.circular(AppSpacing.radiusLg),
       child: Container(
-        width: 108,
-        padding: const EdgeInsets.all(AppSpacing.md),
+        width: width,
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
         decoration: BoxDecoration(
           color: colors.surfaceContainerLowest,
           borderRadius: BorderRadius.circular(AppSpacing.radiusLg),
@@ -162,12 +169,22 @@ class QmaxCategoryCard extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             CircleAvatar(
+              radius: width == null ? 28 : 22,
               backgroundColor: colors.primaryContainer,
-              child: Icon(iconFor(category.icon), color: colors.primary),
+              child: Icon(iconFor(category.icon), color: colors.primary, size: width == null ? 26 : 22),
             ),
-            const SizedBox(height: 8),
-            Text(category.name, maxLines: 2, textAlign: TextAlign.center, style: Theme.of(context).textTheme.labelMedium),
-            Text('${category.productCount}', style: Theme.of(context).textTheme.labelSmall),
+            const SizedBox(height: 10),
+            Text(
+              category.name,
+              maxLines: 2,
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.titleSmall,
+            ),
+            const SizedBox(height: 4),
+            Text(
+              '${category.productCount}',
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(color: colors.onSurfaceVariant),
+            ),
           ],
         ),
       ),

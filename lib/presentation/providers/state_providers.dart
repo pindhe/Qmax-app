@@ -151,6 +151,18 @@ class SettingsNotifier extends Notifier<SettingsState> {
     await ref.read(storageServiceProvider).setThemeMode(mode.name);
   }
 
+  bool isDark(BuildContext context) {
+    return switch (state.themeMode) {
+      ThemeMode.dark => true,
+      ThemeMode.light => false,
+      ThemeMode.system => MediaQuery.platformBrightnessOf(context) == Brightness.dark,
+    };
+  }
+
+  Future<void> toggleDark(BuildContext context) {
+    return setTheme(isDark(context) ? ThemeMode.light : ThemeMode.dark);
+  }
+
   Future<void> setLocale(Locale locale) async {
     state = state.copyWith(locale: locale);
     await ref.read(storageServiceProvider).setLocale(locale.languageCode);
@@ -283,6 +295,23 @@ final bannersProvider = FutureProvider<List<PromoBanner>>((ref) async {
     ApiSuccess(:final data) => data,
     ApiFailure() => [],
   };
+});
+
+final categoryProductsProvider = FutureProvider.family<List<Product>, int>((ref, categoryId) async {
+  final repo = ref.watch(catalogRepositoryProvider);
+  final items = <Product>[];
+  var page = 1;
+  while (true) {
+    final result = await repo.getProducts(
+      page: page,
+      filter: ProductFilter(categoryId: categoryId),
+    );
+    if (result is! ApiSuccess<PaginatedData<Product>>) break;
+    items.addAll(result.data.items);
+    if (!result.data.hasMore) break;
+    page++;
+  }
+  return items;
 });
 
 final productProvider = FutureProvider.family<Product?, int>((ref, id) async {

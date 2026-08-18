@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../presentation/screens/auth/auth_screens.dart';
 import '../../presentation/screens/cart/cart_screens.dart';
+import '../../presentation/screens/category/category_screens.dart';
 import '../../presentation/screens/checkout/checkout_screens.dart';
 import '../../presentation/screens/home/home_screens.dart';
 import '../../presentation/screens/onboarding/onboarding_screen.dart';
@@ -34,19 +35,15 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             GoRoute(path: '/home', pageBuilder: (c, s) => const NoTransitionPage(child: HomeScreen())),
           ]),
           StatefulShellBranch(routes: [
-            GoRoute(path: '/explore', pageBuilder: (c, s) => const NoTransitionPage(child: ExploreScreen())),
-          ]),
-          StatefulShellBranch(routes: [
             GoRoute(path: '/cart', pageBuilder: (c, s) => const NoTransitionPage(child: CartScreen())),
-          ]),
-          StatefulShellBranch(routes: [
-            GoRoute(path: '/wishlist', pageBuilder: (c, s) => const NoTransitionPage(child: WishlistScreen())),
           ]),
           StatefulShellBranch(routes: [
             GoRoute(path: '/profile', pageBuilder: (c, s) => const NoTransitionPage(child: ProfileScreen())),
           ]),
         ],
       ),
+      GoRoute(path: '/explore', builder: (_, __) => const ExploreScreen()),
+      GoRoute(path: '/wishlist', builder: (_, __) => const WishlistScreen()),
       GoRoute(path: '/search', builder: (_, __) => const SearchScreen()),
       GoRoute(path: '/categories', builder: (_, __) => const CategoriesScreen()),
       GoRoute(
